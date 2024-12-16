@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Registrasi dan Pencarian Kode Pos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+        }
+        input, select, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        #output {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Form Registrasi</h1>
+    <form id="registrationForm">
+        <div class="form-group">
+            <label for="nama">Nama Mahasiswa</label>
+            <input type="text" id="nama" name="nama" placeholder="Masukkan Nama">
+            <ul id="namaSuggestions" style="list-style-type: none; padding-left: 0;"></ul>
+        </div>
+        <div class="form-group">
+            <label for="nim">NIM</label>
+            <input type="text" id="nim" name="nim" placeholder="Masukkan NIM">
+        </div>
+        <div class="form-group">
+            <label for="mataKuliah">Mata Kuliah</label>
+            <select id="mataKuliah" name="mataKuliah">
+                <option value="">-- Pilih Mata Kuliah --</option>
+                <option value="Pemrograman">Pemrograman</option>
+                <option value="Basis Data">Basis Data</option>
+                <option value="Jaringan Komputer">Jaringan Komputer</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="dosen">Dosen</label>
+            <select id="dosen" name="dosen">
+                <option value="">-- Pilih Dosen --</option>
+                <option value="Dr. Andi">Dr. Andi</option>
+                <option value="Dr. Budi">Dr. Budi</option>
+                <option value="Dr. Citra">Dr. Citra</option>
+            </select>
+        </div>
+        <button type="submit">Daftar</button>
+    </form>
+
+    <h1>Pencarian Kode Pos</h1>
+    <form id="postalCodeForm">
+        <div class="form-group">
+            <label for="provinsi">Provinsi</label>
+            <select id="provinsi">
+                <option value="">-- Pilih Provinsi --</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="kota">Kabupaten/Kota</label>
+            <select id="kota">
+                <option value="">-- Pilih Kabupaten/Kota --</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="kecamatan">Kecamatan</label>
+            <select id="kecamatan">
+                <option value="">-- Pilih Kecamatan --</option>
+            </select>
+        </div>
+        <button type="button" id="searchPostalCode">Cari Kode Pos</button>
+    </form>
+
+    <div id="output">Kode Pos dan Informasi Daerah akan ditampilkan di sini.</div>
+
+    <script>
+        // Data untuk autocomplete nama
+        const names = ["Andi Sugandi", "Budi Handoko", "Citra Bodilosion", "Dewi Dewa", "Eko Patrio", "Fajar Sadboy", "Gina Goni"];
+        const namaInput = document.getElementById("nama");
+        const namaSuggestions = document.getElementById("namaSuggestions");
+
+        namaInput.addEventListener("input", () => {
+            const input = namaInput.value.toLowerCase();
+            namaSuggestions.innerHTML = "";
+            if (input) {
+                const filteredNames = names.filter(name => name.toLowerCase().includes(input));
+                filteredNames.forEach(name => {
+                    const li = document.createElement("li");
+                    li.textContent = name;
+                    li.style.cursor = "pointer";
+                    li.addEventListener("click", () => {
+                        namaInput.value = name;
+                        namaSuggestions.innerHTML = "";
+                    });
+                    namaSuggestions.appendChild(li);
+                });
+            }
+        });
+
+        // Data untuk dropdown dinamis (simulasi dengan data statis)
+        const regions = {
+            "Jawa Timur": {
+                "Surabaya": ["Genteng", "Gubeng", "Sukolilo"],
+                "Malang": ["Klojen", "Blimbing", "Lowokwaru"]
+            },
+            "Jawa Tengah": {
+                "Semarang": ["Banyumanik", "Tembalang", "Candisari"],
+                "Solo": ["Laweyan", "Banjarsari", "Serengan"]
+            }
+        };
+
+        const provinsiSelect = document.getElementById("provinsi");
+        const kotaSelect = document.getElementById("kota");
+        const kecamatanSelect = document.getElementById("kecamatan");
+
+        // Mengisi dropdown provinsi
+        for (const provinsi in regions) {
+            const option = document.createElement("option");
+            option.value = provinsi;
+            option.textContent = provinsi;
+            provinsiSelect.appendChild(option);
+        }
+
+        provinsiSelect.addEventListener("change", () => {
+            kotaSelect.innerHTML = '<option value="">-- Pilih Kabupaten/Kota --</option>';
+            kecamatanSelect.innerHTML = '<option value="">-- Pilih Kecamatan --</option>';
+            const selectedProvinsi = provinsiSelect.value;
+            if (selectedProvinsi) {
+                for (const kota in regions[selectedProvinsi]) {
+                    const option = document.createElement("option");
+                    option.value = kota;
+                    option.textContent = kota;
+                    kotaSelect.appendChild(option);
+                }
+            }
+        });
+
+        kotaSelect.addEventListener("change", () => {
+            kecamatanSelect.innerHTML = '<option value="">-- Pilih Kecamatan --</option>';
+            const selectedKota = kotaSelect.value;
+            const selectedProvinsi = provinsiSelect.value;
+            if (selectedKota) {
+                regions[selectedProvinsi][selectedKota].forEach(kecamatan => {
+                    const option = document.createElement("option");
+                    option.value = kecamatan;
+                    option.textContent = kecamatan;
+                    kecamatanSelect.appendChild(option);
+                });
+            }
+        });
+
+        document.getElementById("searchPostalCode").addEventListener("click", () => {
+            const provinsi = provinsiSelect.value;
+            const kota = kotaSelect.value;
+            const kecamatan = kecamatanSelect.value;
+
+            if (provinsi && kota && kecamatan) {
+                const kodePos = Math.floor(10000 + Math.random() * 90000); // Simulasi kode pos
+                document.getElementById("output").textContent = `Kode Pos untuk ${kecamatan}, ${kota}, ${provinsi} adalah ${kodePos}.`;
+            } else {
+                document.getElementById("output").textContent = "Harap lengkapi semua pilihan.";
+            }
+        });
+    </script>
+
+</body>
+</html>
